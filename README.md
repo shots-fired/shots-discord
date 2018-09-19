@@ -18,3 +18,7 @@ The easiest way to run Shots is by cloning the `shots-deploy` project and using 
 2. `cd shots-deploy`
 3. `docker-compose build`
 4. `docker-compose up`
+
+## Environment variables
+
+* SERVER_ADDRESS
