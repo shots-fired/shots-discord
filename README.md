@@ -22,3 +22,4 @@ The easiest way to run Shots is by cloning the `shots-deploy` project and using 
 ## Environment variables
 
 * SERVER_ADDRESS
+* BOT_KEY
