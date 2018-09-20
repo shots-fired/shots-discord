@@ -10,8 +10,6 @@ import (
 
 var botID string
 
-const commandPrefix string = "!"
-
 func main() {
 	discord, err := discordgo.New("Bot " + os.Getenv("BOT_KEY"))
 	if err != nil {
@@ -46,7 +44,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	if user.ID == botID || user.Bot {
 		//Do nothing because the bot is talking
 		return
-	} else if strings.HasPrefix(message.Content, "1") {
+	} else if strings.HasPrefix(message.Content, "!") {
 		split := strings.Split(message.Content, " ")
 		switch split[0] {
 		case "!register":
@@ -59,6 +57,4 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			discord.ChannelMessageSend(message.ChannelID, "Status is WIP")
 		}
 	}
-
-	fmt.Printf("Message: %+v || From: %s\n", message.Message, message.Author)
 }
