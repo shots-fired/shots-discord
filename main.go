@@ -40,21 +40,24 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 }
 
 func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
-	user := message.Author
-	if user.ID == botID || user.Bot {
-		//Do nothing because the bot is talking
+	if message.Author.ID == botID || message.Author.Bot {
+		// Do nothing because the bot is talking
 		return
 	} else if strings.HasPrefix(message.Content, "!") {
 		split := strings.Split(message.Content, " ")
 		switch split[0] {
 		case "!register":
-			if len(split) > 1 {
-				discord.ChannelMessageSend(message.ChannelID, "Registered "+split[1])
-			} else {
-				discord.ChannelMessageSend(message.ChannelID, "Need to specify a username to register")
-			}
+			registerTwitchHandler(discord, message, split)
 		case "!status":
 			discord.ChannelMessageSend(message.ChannelID, "Status is WIP")
 		}
+	}
+}
+
+func registerTwitchHandler(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
+	if len(splitMessage) > 1 {
+		discord.ChannelMessageSend(message.ChannelID, "Registered "+splitMessage[1])
+	} else {
+		discord.ChannelMessageSend(message.ChannelID, "Need to specify a username to register")
 	}
 }
