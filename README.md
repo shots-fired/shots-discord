@@ -23,3 +23,4 @@ The easiest way to run Shots is by cloning the `shots-deploy` project and using 
 
 * SERVER_ADDRESS
 * BOT_KEY
+* STORE_ADDRESS
