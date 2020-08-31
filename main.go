@@ -55,6 +55,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			registerTwitchHandler(discord, message, split)
 		case "!status":
 			statusTwitchHandler(discord, message)
+		case "!bitch":
+			discord.ChannelMessageSend(message.ChannelID, fmt.Sprintf("no u <@%s>", message.Author.ID))
+		case "!munt":
+			discord.ChannelMessageSend(message.ChannelID, "munt cuffins 4 lyfe")
 		}
 	}
 }
