@@ -94,6 +94,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		return
 	} else if strings.HasPrefix(message.Content, "!") {
 		splitMessage := strings.Split(message.Content, " ")
-		lookup[splitMessage[0][1:]](discord, message, splitMessage[1:])
+		if lookupFunc, ok := lookup[splitMessage[0][1:]]; ok {
+			lookupFunc(discord, message, splitMessage[1:])
+		}
 	}
 }
