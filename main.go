@@ -16,7 +16,7 @@ import (
 var botID string
 
 func main() {
-	discord, err := discordgo.New("Bot " + os.Getenv("BOT_KEY"))
+	discord, err := discordgo.New("Bot " + os.Getenv("BOT_TOKEN"))
 	if err != nil {
 		panic(err)
 	}
@@ -44,25 +44,6 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	fmt.Printf("Shots has started on %d servers", len(discord.State.Guilds))
 }
 
-func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
-	if message.Author.ID == botID || message.Author.Bot {
-		// Do nothing because the bot is talking
-		return
-	} else if strings.HasPrefix(message.Content, "!") {
-		split := strings.Split(message.Content, " ")
-		switch split[0] {
-		case "!register":
-			registerTwitchHandler(discord, message, split)
-		case "!status":
-			statusTwitchHandler(discord, message)
-		case "!bitch":
-			discord.ChannelMessageSend(message.ChannelID, fmt.Sprintf("no u <@%s>", message.Author.ID))
-		case "!munt":
-			discord.ChannelMessageSend(message.ChannelID, "munt cuffins 4 lyfe")
-		}
-	}
-}
-
 func registerTwitchHandler(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
 	if len(splitMessage) > 1 {
 		discord.ChannelMessageSend(message.ChannelID, "Registered "+splitMessage[1])
@@ -71,7 +52,7 @@ func registerTwitchHandler(discord *discordgo.Session, message *discordgo.Messag
 	}
 }
 
-func statusTwitchHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
+func statusTwitchHandler(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
 	str := ""
 	res, err := http.Get("http://" + os.Getenv("STORE_ADDRESS") + "/streamers")
 	if err != nil {
@@ -86,4 +67,33 @@ func statusTwitchHandler(discord *discordgo.Session, message *discordgo.MessageC
 		log.Printf("%s %s %d\n", v.Name, v.Status, v.Viewers)
 	}
 	discord.ChannelMessageSend(message.ChannelID, str)
+}
+
+func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
+	lookup := map[string]func(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string){}
+
+	lookup["register"] = registerTwitchHandler
+	lookup["status"] = statusTwitchHandler
+	lookup["bitch"] = func(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
+		discord.ChannelMessageSend(message.ChannelID, fmt.Sprintf("no u <@%s>", message.Author.ID))
+	}
+	lookup["munt"] = func(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
+		discord.ChannelMessageSend(message.ChannelID, "munt cuffins 4 lyfe")
+	}
+	var help = "Hi! I'm shots! Here are my commands: \n"
+	for k, _ := range lookup {
+		help += fmt.Sprintf("!%s\n", k)
+	}
+	help += "Some commands only available for admins..."
+	lookup["shots"] = func(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
+		discord.ChannelMessageSend(message.ChannelID, help)
+	}
+
+	if message.Author.ID == botID || message.Author.Bot {
+		// Do nothing because the bot is talking
+		return
+	} else if strings.HasPrefix(message.Content, "!") {
+		splitMessage := strings.Split(message.Content, " ")
+		lookup[splitMessage[0][1:]](discord, message, splitMessage[1:])
+	}
 }
