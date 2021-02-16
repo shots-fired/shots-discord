@@ -81,7 +81,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		discord.ChannelMessageSend(message.ChannelID, "munt cuffins 4 lyfe")
 	}
 	var help = "Hi! I'm shots! Here are my commands: \n"
-	for k, _ := range lookup {
+	for k := range lookup {
 		help += fmt.Sprintf("!%s\n", k)
 	}
 	help += "Some commands only available for admins..."
