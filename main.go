@@ -98,7 +98,7 @@ func messageHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		return
 	} else if strings.HasPrefix(message.Content, "!") {
 		commandHandler(discord, message)
-	} else if strings.HasPrefix(message.Content, fmt.Sprintf("<@!%s> ", botID)) {
+	} else if strings.HasPrefix(message.Content, fmt.Sprintf("<@!%s> ", botID)) || strings.HasPrefix(message.Content, fmt.Sprintf("<@%s> ", botID)) {
 		mentionHandler(discord, message)
 	}
 }
