@@ -16,7 +16,7 @@ import (
 var botID string
 
 func main() {
-	discord, err := discordgo.New("Bot " + os.Getenv("BOT_TOKEN"))
+	discord, err := discordgo.New("Bot " + os.Getenv("DISCORD_BOT_TOKEN"))
 	if err != nil {
 		panic(err)
 	}
