@@ -11,6 +11,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/shots-fired/shots-common/models"
+	"github.com/shots-fired/shots-discord/handlers"
 )
 
 var botID string
@@ -43,8 +44,9 @@ func statusTwitchHandler(discord *discordgo.Session, message *discordgo.MessageC
 func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
 	lookup := map[string]func(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string){}
 
-	lookup["register"] = registerTwitchHandler
-	lookup["status"] = statusTwitchHandler
+	// lookup["register"] = registerTwitchHandler
+	// lookup["status"] = statusTwitchHandler
+	lookup["cat"] = handlers.CatsHandler
 	lookup["bitch"] = func(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
 		discord.ChannelMessageSend(message.ChannelID, fmt.Sprintf("no u <@%s>", message.Author.ID))
 	}
