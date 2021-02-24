@@ -16,6 +16,7 @@ func CommandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 
 	// animals
 	lookup["cat"] = catsHandler
+	lookup["dog"] = dogsHandler
 
 	// fun dispersal commands
 	lookup["scatter"] = scatterHandler
