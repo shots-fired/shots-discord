@@ -1,4 +1,4 @@
-package handlers
+package commands
 
 import (
 	"encoding/json"
@@ -38,8 +38,8 @@ func queryCat() (Cat, error) {
 	return cats[0], err
 }
 
-// CatsHandler accepts the cat request from discord
-func CatsHandler(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
+// catsHandler accepts the cat request from discord
+func catsHandler(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
 	cat, err := queryCat()
 	if err != nil {
 		panic(err)
