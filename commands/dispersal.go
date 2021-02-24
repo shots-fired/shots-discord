@@ -61,13 +61,51 @@ func scatterHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			continue
 		}
 		channel := validChannels[random.Intn(len(validChannels))]
-		err := discord.GuildMemberMove(message.GuildID, message.Author.ID, &channel)
+		err := discord.GuildMemberMove(message.GuildID, userVoiceState.UserID, &channel)
 		var logmsg string
 		if err != nil {
 			logmsg = "Couldn't move %s to %s... oh well..."
 		} else {
 			logmsg = "Moving %s to %s"
 		}
-		log.Printf(logmsg, message.Author.Username, channel)
+		log.Printf(logmsg, userVoiceState.UserID, channel)
+	}
+}
+
+func momsHandler(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
+	callerVoiceState, err := discord.State.VoiceState(message.GuildID, message.Author.ID)
+	if err != nil {
+		log.Printf("%s thought they were real slick calling this from a non-voice channel", message.Author.Username)
+		return
+	}
+
+	guild, err := discord.State.Guild(message.GuildID)
+	if err != nil {
+		panic(err)
+	}
+
+	if guild.AfkChannelID == "" {
+		log.Printf("No AFK channel for %s", message.GuildID)
+		return
+	}
+
+	// Check if the caller at least has permission to move members to AFK.
+	if !hasMovePermission(discord, message.Author.ID, guild.AfkChannelID) {
+		log.Printf("%s can't move people to %s", message.Author.Username, callerVoiceState.ChannelID)
+		return
+	}
+
+	for _, userVoiceState := range guild.VoiceStates {
+		if userVoiceState.ChannelID != callerVoiceState.ChannelID {
+			continue
+		}
+		err := discord.GuildMemberMove(message.GuildID, userVoiceState.UserID, &guild.AfkChannelID)
+		var logmsg string
+		if err != nil {
+			logmsg = "Couldn't move %s to %s... oh well..."
+		} else {
+			logmsg = "Moving %s to %s"
+		}
+		log.Printf(logmsg, userVoiceState.UserID, guild.AfkChannelID)
 	}
 }
