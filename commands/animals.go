@@ -46,3 +46,40 @@ func catsHandler(discord *discordgo.Session, message *discordgo.MessageCreate, s
 	}
 	discord.ChannelMessageSend(message.ChannelID, cat.URL)
 }
+
+type (
+	// Dog is the data model for dog.ceo return
+	Dog struct {
+		Message string `json:"Message"`
+	}
+
+	// Dogs is a collection of Dog structs
+	Dogs []Dog
+)
+
+func queryDog() (Dog, error) {
+	var dog Dog
+
+	baseURL := "https://dog.ceo/api/breeds/image/random"
+	res, err := http.Get(baseURL)
+	if err != nil {
+		return dog, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode == http.StatusOK {
+		err := json.NewDecoder(res.Body).Decode(&dog)
+		return dog, err
+	}
+	err = errors.New("Recieved: " + res.Status)
+	return dog, err
+}
+
+// dogssHandler accepts the dog request from discord
+func dogsHandler(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
+	dog, err := queryDog()
+	if err != nil {
+		panic(err)
+	}
+	discord.ChannelMessageSend(message.ChannelID, dog.Message)
+}
