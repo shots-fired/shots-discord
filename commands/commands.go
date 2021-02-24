@@ -19,6 +19,7 @@ func CommandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 
 	// fun dispersal commands
 	lookup["scatter"] = scatterHandler
+	lookup["moms-home"] = momsHandler
 
 	// one-off testers
 	lookup["bitch"] = func(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
