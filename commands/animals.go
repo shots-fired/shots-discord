@@ -39,12 +39,18 @@ func queryCat() (Cat, error) {
 }
 
 // catsHandler accepts the cat request from discord
-func catsHandler(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
+func catsHandler(session *discordgo.Session, i *discordgo.InteractionCreate) {
 	cat, err := queryCat()
 	if err != nil {
 		panic(err)
 	}
-	discord.ChannelMessageSend(message.ChannelID, cat.URL)
+
+	session.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: cat.URL,
+		},
+	})
 }
 
 type (
@@ -76,10 +82,16 @@ func queryDog() (Dog, error) {
 }
 
 // dogssHandler accepts the dog request from discord
-func dogsHandler(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
+func dogsHandler(session *discordgo.Session, i *discordgo.InteractionCreate) {
 	dog, err := queryDog()
 	if err != nil {
 		panic(err)
 	}
-	discord.ChannelMessageSend(message.ChannelID, dog.Message)
+
+	session.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: dog.Message,
+		},
+	})
 }

@@ -1,53 +1,77 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"os"
-	"strings"
-
 	"github.com/bwmarrin/discordgo"
 	"github.com/shots-fired/shots-discord/commands"
 	"github.com/shots-fired/shots-discord/mentions"
+	"log"
+	"os"
+	"os/signal"
+	"strings"
 )
 
-var botID string
+// Bot parameters
+var (
+	BotID          = flag.String("id", "", "BotID")
+	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
+	BotToken       = flag.String("token", "", "Bot access token")
+	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
+)
 
-func messageHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
-	if message.Author.ID == botID || message.Author.Bot {
+func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate) {
+	if message.Author.ID == *BotID || message.Author.Bot {
 		// Do nothing because the bot is talking
 		return
-	} else if strings.HasPrefix(message.Content, "!") {
-		commands.CommandHandler(discord, message)
-	} else if strings.HasPrefix(message.Content, fmt.Sprintf("<@!%s> ", botID)) || strings.HasPrefix(message.Content, fmt.Sprintf("<@%s> ", botID)) {
-		mentions.MentionHandler(discord, message)
+	} else if strings.HasPrefix(message.Content, fmt.Sprintf("<@!%s> ", *BotID)) || strings.HasPrefix(message.Content, fmt.Sprintf("<@%s> ", *BotID)) {
+		mentions.MentionHandler(session, message)
 	}
-}
-
-func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
-	fmt.Printf("Shots has started on %d servers", len(discord.State.Guilds))
 }
 
 func main() {
-	discord, err := discordgo.New("Bot " + os.Getenv("DISCORD_BOT_TOKEN"))
+	flag.Parse()
+
+	session, err := discordgo.New("Bot " + os.Getenv("DISCORD_BOT_TOKEN"))
 	if err != nil {
 		panic(err)
 	}
 
-	user, err := discord.User("@me")
+	user, err := session.User("@me")
 	if err != nil {
 		panic(err)
 	}
+	BotID = &user.ID
 
-	botID = user.ID
+	session.AddHandler(messageHandler)
+	session.AddHandler(func(session *discordgo.Session, i *discordgo.InteractionCreate) {
+		if handler, ok := commands.CommandHandlers[i.ApplicationCommandData().Name]; ok {
+			handler(session, i)
+		}
+	})
 
-	discord.AddHandler(messageHandler)
-	discord.AddHandler(readyHandler)
-
-	err = discord.Open()
+	session.AddHandler(func(session *discordgo.Session, r *discordgo.Ready) {
+		fmt.Printf("Shots has started on %d servers", len(session.State.Guilds))
+	})
+	err = session.Open()
 	if err != nil {
 		panic(err)
 	}
-	defer discord.Close()
+	if err != nil {
+		log.Fatalf("Cannot open the session: %v", err)
+	}
 
-	<-make(chan struct{})
+	for _, v := range commands.Commands {
+		_, err := session.ApplicationCommandCreate(session.State.User.ID, *GuildID, v)
+		if err != nil {
+			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+		}
+	}
+
+	defer session.Close()
+
+	stop := make(chan os.Signal)
+	signal.Notify(stop, os.Interrupt)
+	<-stop
+	log.Println("Gracefully shutdowning")
 }

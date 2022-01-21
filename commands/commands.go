@@ -1,47 +1,73 @@
 package commands
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/bwmarrin/discordgo"
+	"time"
 )
 
-// CommandHandler is the primary dispatcher for !-prefixed commands in shots.
-func CommandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
-	lookup := map[string]func(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string){}
-
-	// lookup["register"] = registerTwitchHandler
-	// lookup["status"] = statusTwitchHandler
-
-	// animals
-	lookup["cat"] = catsHandler
-	lookup["dog"] = dogsHandler
-
-	// fun dispersal commands
-	lookup["scatter"] = scatterHandler
-	lookup["moms-home"] = momsHandler
-
-	// one-off testers
-	lookup["bitch"] = func(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
-		discord.ChannelMessageSend(message.ChannelID, fmt.Sprintf("no u <@%s>", message.Author.ID))
+var (
+	Commands = []*discordgo.ApplicationCommand{
+		{
+			Name:        "cat",
+			Description: "Get yoself a cat",
+		},
+		{
+			Name:        "dog",
+			Description: "Get yoself a dog",
+		},
+		{
+			Name:        "scatter",
+			Description: "Get yoself a cat",
+		},
+		{
+			Name:        "moms-home",
+			Description: "RUN! MOMS HOME!",
+		},
 	}
-	lookup["munt"] = func(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
-		discord.ChannelMessageSend(message.ChannelID, "munt cuffins 4 lyfe")
-	}
+	CommandHandlers = map[string]func(session *discordgo.Session, i *discordgo.InteractionCreate){
+		"cat":       catsHandler,
+		"dog":       dogsHandler,
+		"scatter":   scatterHandler,
+		"moms-home": momsHandler,
+		"followups": func(session *discordgo.Session, i *discordgo.InteractionCreate) {
+			// Followup messages are basically regular messages (you can create as many of them as you wish)
+			// but work as they are created by webhooks and their functionality
+			// is for handling additional messages after sending a response.
 
-	// constructing the help message
-	var help = "Hi! I'm shots! Here are my commands: \n"
-	for k := range lookup {
-		help += fmt.Sprintf("!%s\n", k)
-	}
-	help += "Some commands only available for admins..."
-	lookup["shots"] = func(discord *discordgo.Session, message *discordgo.MessageCreate, splitMessage []string) {
-		discord.ChannelMessageSend(message.ChannelID, help)
-	}
+			session.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					// Note: this isn't documented, but you can use that if you want to.
+					// This flag just allows you to create messages visible only for the caller of the command
+					// (user who triggered the command)
+					Flags:   1 << 6,
+					Content: "Surprise!",
+				},
+			})
+			msg, err := session.FollowupMessageCreate(session.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				Content: "Followup message has been created, after 5 seconds it will be edited",
+			})
+			if err != nil {
+				session.FollowupMessageCreate(session.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Something went wrong",
+				})
+				return
+			}
+			time.Sleep(time.Second * 5)
 
-	splitMessage := strings.Split(message.Content, " ")
-	if lookupFunc, ok := lookup[splitMessage[0][1:]]; ok {
-		lookupFunc(discord, message, splitMessage[1:])
+			session.FollowupMessageEdit(session.State.User.ID, i.Interaction, msg.ID, &discordgo.WebhookEdit{
+				Content: "Now the original message is gone and after 10 seconds this message will ~~self-destruct~~ be deleted.",
+			})
+
+			time.Sleep(time.Second * 10)
+
+			session.FollowupMessageDelete(session.State.User.ID, i.Interaction, msg.ID)
+
+			session.FollowupMessageCreate(session.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				Content: "For those, who didn't skip anything and followed tutorial along fairly, " +
+					"take a unicorn :unicorn: as reward!\n" +
+					"Also, as bonus... look at the original interaction response :D",
+			})
+		},
 	}
-}
+)
