@@ -9,19 +9,19 @@ var (
 	Commands = []*discordgo.ApplicationCommand{
 		{
 			Name:        "cat",
-			Description: "Get yoself a cat",
+			Description: "Get yo-self a cat",
 		},
 		{
 			Name:        "dog",
-			Description: "Get yoself a dog",
+			Description: "Get yo-self a dog",
 		},
 		{
 			Name:        "scatter",
-			Description: "Get yoself a cat",
+			Description: "Fly! You fools!",
 		},
 		{
 			Name:        "moms-home",
-			Description: "RUN! MOMS HOME!",
+			Description: "HIDE! MOM'S HOME!",
 		},
 	}
 	CommandHandlers = map[string]func(session *discordgo.Session, i *discordgo.InteractionCreate){

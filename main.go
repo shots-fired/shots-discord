@@ -51,7 +51,7 @@ func main() {
 	})
 
 	session.AddHandler(func(session *discordgo.Session, r *discordgo.Ready) {
-		fmt.Printf("Shots has started on %d servers", len(session.State.Guilds))
+		log.Printf("Shots has started on %d servers", len(session.State.Guilds))
 	})
 	err = session.Open()
 	if err != nil {
