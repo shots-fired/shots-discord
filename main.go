@@ -15,9 +15,9 @@ import (
 // Bot parameters
 var (
 	BotID          = flag.String("id", "", "BotID")
-	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
+	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers tools globally")
 	BotToken       = flag.String("token", "", "Bot access token")
-	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
+	RemoveCommands = flag.Bool("rmcmd", true, "Remove all tools after shutdowning or not")
 )
 
 func messageHandler(session *discordgo.Session, message *discordgo.MessageCreate) {

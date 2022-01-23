@@ -16,6 +16,8 @@ github.com/onsi/gomega v1.4.1/go.mod h1:C1qb7wdrVGGVU+Z6iS04AVkA3Q65CEZX59MT0QO5
 github.com/onsi/gomega v1.4.2/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=
 github.com/shots-fired/shots-common v0.1.0 h1:GS6tpQkWnY5U3xUm7E/xI/bRBpgRqDv1DQMlI6wrIeQ=
 github.com/shots-fired/shots-common v0.1.0/go.mod h1:HbYVlAz1EVnJGSKwylVJyJXXJQHS8giEHqgypF6zvNs=
+github.com/shots-fired/shots-common v0.1.1 h1:xyWQYtK3v7VYOVOzVbX0fNPABmt8JODpJ9H7KVXBWZQ=
+github.com/shots-fired/shots-common v0.1.1/go.mod h1:e9k4zRlDsVqmEgcQmZipJAI+r1SDi0OpLs2YtAXBeOI=
 github.com/shots-fired/shots-deploy v0.0.0-20210224053139-fe42568a8ce4 h1:HHZJ/tPzDvuME4F3Bp/YQ2sDgo9cbtdvk/XQWgJXmvk=
 github.com/shots-fired/shots-deploy v0.0.0-20210224053139-fe42568a8ce4/go.mod h1:4w5OlRtDKeLVPTz5ZCENHFDvjLPqHfEuQY70T0qouyw=
 github.com/shots-fired/shots-store v0.0.0-20180923165111-bd7657af7984/go.mod h1:zXUe3huoCA8G3uxZ/OaUwawjCSREpxsfrJZUsNRxo2o=
